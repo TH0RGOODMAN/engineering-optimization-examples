@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>双机调度实验室 · hea1</title><meta name="description" content="修改订单工时和权重，比较直观派单与精确最优调度，用甘特图理解加权完工时间。">
+  <meta name="theme-color" content="#fcf9f2"><link rel="canonical" href="https://hea1.org/engineering-optimization-examples/"><link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <meta property="og:title" content="双机调度实验室 · hea1"><meta property="og:type" content="website"><meta property="og:url" content="https://hea1.org/engineering-optimization-examples/"><meta property="og:description" content="同一批订单，换一种分配和顺序。修改工时与权重，看看怎样改变结果。"><meta property="og:image" content="https://hea1.org/engineering-optimization-examples/docs/screenshot.jpg">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">跳至主要内容</a><div class="wrap">
+  <header><a class="brand" href="https://hea1.org/">● ■ ◆ hea1</a><nav aria-label="导航"><a href="https://hea1.org/notes/scheduling-priorities/">读设计笔记</a><a href="https://github.com/TH0RGOODMAN/engineering-optimization-examples">GitHub ↗</a></nav></header>
+  <main id="main">
+    <section class="intro"><div><span class="sticker">EXPERIMENT 03 · 工程优化</span><h1>同一批订单，<br>换一种<span>安排</span>。</h1><p>哪台机器加工，谁先开始？改一改工时和权重，用两张时间表看看取舍。</p></div><aside class="intro-note"><strong>先试一个变化</strong><p>把订单 F 的权重改成 10。观察优化方案有没有让它更早完成，以及其他订单怎样让位。</p><small>合成数据，所有订单同时可用；权重表达优先程度。</small></aside></section>
+    <noscript><p class="notice">交互需要 JavaScript。下方模型和设计笔记仍可阅读。</p></noscript>
+    <section id="lab" hidden aria-label="调度实验台">
+      <div class="input-card"><div class="panel-top"><div><h2>给订单一个工时和权重</h2><p class="hint">工时 1–20，权重 1–10，均为整数。最多 8 个订单。</p></div><div class="preset"><label for="preset">预设场景</label><select id="preset"><option value="specialists">机器各有所长</option><option value="priority">一个高权重订单</option><option value="equal">完全相同的订单</option></select></div></div>
+        <div class="table-scroll"><table class="jobs-table"><caption>两台机器的加工时间与订单权重</caption><thead><tr><th scope="col">订单</th><th scope="col">机器 1 工时</th><th scope="col">机器 2 工时</th><th scope="col">权重</th><th scope="col">顺序 / 移除</th></tr></thead><tbody id="jobs"></tbody></table></div>
+        <div class="input-actions"><button type="button" id="add">加一个订单 ＋</button><button type="button" id="reset">恢复预设 ↻</button><button type="button" class="action" id="export">导出实验 JSON ↓</button></div>
+        <p id="status" class="status" role="status" aria-live="polite" aria-atomic="true"></p>
+      </div>
+      <section class="comparison" id="comparison" aria-label="两种安排比较"><article class="result-card baseline-card"><div class="result-heading"><h2>直观派单</h2><span>按输入顺序</span></div><p class="method">依次把订单分给能让它最早完工的机器，追加到队尾。</p><div id="baseline-metrics"></div><div id="baseline-chart" class="gantt" aria-label="直观派单甘特图"></div><details><summary>各订单的完工代价</summary><div id="baseline-table" class="table-scroll"></div></details></article>
+      <article class="result-card optimized-card"><div class="result-heading"><h2>精确最优安排</h2><span id="assignment-count"></span></div><p class="method">穷举机器分配，再按工时与权重的比值排列各机订单。</p><div id="optimized-metrics"></div><div id="optimized-chart" class="gantt" aria-label="精确最优甘特图"></div><details><summary>各订单的完工代价</summary><div id="optimized-table" class="table-scroll"></div></details></article>
+      <p class="comparison-note" id="comparison-note"></p></section>
+      <p class="hint chart-note">两张图使用相同时间刻度；横条是加工时段，条内字母是订单。窄屏可横向滚动；详细开始/完工时间可在上方展开。</p>
+    </section>
+    <section class="explain"><div><span class="sticker">把目标写明白</span><h2>“尽早完成”，<br>也有不同含义。</h2><p class="formula">目标 = Σ 权重 × 完工时间</p><p>每个订单从时刻 0 开始等待。权重越高，晚完成一个时间单位的代价越高。我们最小化所有订单加权完工时间之和。</p><p>两台机器可以并行，同机不能重叠；每个订单只能在一台机器连续加工一次。同一订单在不同机器上的工时可以不同。</p></div><div><h3>最优是对哪个目标而言？</h3><p>优化的是加权完工时间，不保证最后一个订单更早结束。总工期只是另一个观察指标。没有交期，所以这里也没有计算拖期。</p><h3>为什么只放 8 个订单？</h3><p>两机分配最多 2⁸ = 256 种，可以逐一检查。确定分配后，按各机工时/权重的非降序排列，就是当前模型的最优顺序。</p><p>这个版本没有释放时间、切换耗时、订单依赖、设备故障或中断加工。合成例子用于解释优化，不是生产排程系统。</p><a class="text-link" href="https://hea1.org/notes/scheduling-priorities/">读规则、推导与验证 →</a></div></section>
+  </main><footer><a href="https://hea1.org/">← 返回 hea1 的小站</a><span>本地计算 · 合成数据 · AI 辅助开发</span><a href="./LICENSE">MIT</a></footer></div><script type="module" src="./app.js"></script>
+</body>
+</html>

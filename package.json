@@ -1,0 +1,10 @@
+{
+  "name": "engineering-optimization-examples",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reproducible engineering optimization teaching examples, starting with exact two-machine weighted completion scheduling.",
+  "scripts": { "start": "node scripts/serve.mjs", "test": "node --test", "build": "node scripts/build.mjs" },
+  "engines": { "node": ">=22" },
+  "license": "MIT"
+}
